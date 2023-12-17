@@ -13,3 +13,4 @@ class PostDetail(DetailView):
     model = Post
     template_name = 'post.html'
     context_object_name = 'post'
+    pk_url_kwarg = 'id'
