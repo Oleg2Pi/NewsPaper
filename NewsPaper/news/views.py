@@ -1,8 +1,14 @@
 from typing import Any
 from django.db.models.query import QuerySet
-from django.views.generic import ListView, DetailView
+from django.forms.models import BaseModelForm
+from django.http import HttpResponse
+from django.urls import reverse_lazy
+from django.views.generic import (
+    ListView, DetailView, CreateView, UpdateView, DeleteView,
+)
 from .models import Post
 from .filters import PostsFilter
+from .forms import PostForm
 
 
 class PostsList(ListView):
@@ -33,6 +39,30 @@ class PostsSearch(ListView):
 
 class PostDetail(DetailView):
     model = Post
-    template_name = 'posts_search.html'
+    template_name = 'post.html'
     context_object_name = 'post'
     pk_url_kwarg = 'id'
+
+
+class NewsCreate(CreateView):
+    form_class = PostForm
+    model = Post
+    template_name = 'post_edit.html'
+
+    def form_valid(self, form: BaseModelForm) -> HttpResponse:
+        post = form.save(commit=False)
+        post.rating = 0
+        post.position = 'news'
+        return super().form_valid(form)
+
+
+class NewsUpdate(UpdateView):
+    form_class = PostForm
+    model = Post
+    template_name = 'Post_edit.html'
+
+
+class NewsDelete(DeleteView):
+    model = Post
+    template_name = 'post_delete.html'
+    success_url = reverse_lazy('posts_list')
