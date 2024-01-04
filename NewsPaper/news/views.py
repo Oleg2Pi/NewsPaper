@@ -12,6 +12,7 @@ class PostsList(ListView):
     context_object_name = 'posts'
     paginate_by = 10
 
+
 class PostsSearch(ListView):
     model = Post
     ordering = '-time_create'
@@ -23,14 +24,15 @@ class PostsSearch(ListView):
         queryset = super().get_queryset()
         self.filterset = PostsFilter(self.request.GET, queryset)
         return self.filterset.qs
-    
+
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
         context['filterset'] = self.filterset
         return context
 
+
 class PostDetail(DetailView):
     model = Post
-    template_name = 'post.html'
+    template_name = 'posts_search.html'
     context_object_name = 'post'
     pk_url_kwarg = 'id'
