@@ -52,7 +52,9 @@ class NewsCreate(CreateView):
     def form_valid(self, form: BaseModelForm) -> HttpResponse:
         post = form.save(commit=False)
         post.rating = 0
-        post.position = 'news'
+        if self.request.path == 'news/articles/create/':
+            post.position = 'AR'
+        post.save()
         return super().form_valid(form)
 
 
