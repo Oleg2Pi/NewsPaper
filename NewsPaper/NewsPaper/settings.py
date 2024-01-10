@@ -101,6 +101,9 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 
+ACCOUNT_FORMS = {'signup': 'news.forms.BasicSignupForm'}
+
+
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
 
