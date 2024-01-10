@@ -9,7 +9,11 @@ Post
 <!-- В контенте на странице мы выводим все товары -->
 {% block content %}
 <h1>Все статьи</h1>
-<h6>Количество: {{ posts|length }}</h6>
+<h6>Количество статей на странице: {{ posts|length }}</h6>
+
+{% if is_not_author %}
+    <button><a href="upgrade/">Стать автором?</a></button>
+{% endif %}
 <hr>
 {% if posts %}
 <table>
