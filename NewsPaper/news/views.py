@@ -88,7 +88,7 @@ class NewsCreate(PermissionRequiredMixin, CreateView):
             msg = EmailMultiAlternatives(
                 subject=title,
                 body=f"{text[:50]}",
-                from_email=settings.DEFAULT_EMAIL_USER,
+                from_email=settings.DEFAULT_FROM_EMAIL,
                 to=[subscriber.email],
             )
             msg.attach_alternative(html_content, 'text/html')
