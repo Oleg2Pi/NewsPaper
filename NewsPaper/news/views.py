@@ -1,3 +1,4 @@
+from django.db.models.base import Model as Model
 from NewsPaper import settings
 from typing import Any
 from django.db.models.query import QuerySet
@@ -93,7 +94,7 @@ class NewsCreate(PermissionRequiredMixin, CreateView):
             )
             msg.attach_alternative(html_content, 'text/html')
             msg.send()
-            return redirect('/news/')
+        return redirect('/news/')
     
 
 class NewsUpdate(PermissionRequiredMixin, LoginRequiredMixin, UpdateView):
@@ -101,6 +102,10 @@ class NewsUpdate(PermissionRequiredMixin, LoginRequiredMixin, UpdateView):
     form_class = PostForm
     model = Post
     template_name = 'Post_edit.html'
+
+    def get_object(self, queryset: QuerySet[Any] | None = ...) -> Model:
+        id = self.kwargs.get('pk')
+        return Post.objects.get(pk=id)
 
 
 class NewsDelete(PermissionRequiredMixin, DeleteView):
