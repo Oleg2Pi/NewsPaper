@@ -8,8 +8,8 @@ Post
 
 <!-- В контенте на странице мы выводим все товары -->
 {% block content %}
-<h1>Все статьи</h1>
-<h6>Количество статей на странице: {{ posts|length }}</h6>
+<h1>Опубликованные новости/статьи</h1>
+<h6>Количество постов на странице: {{ posts|length }}</h6>
 
 {% if is_not_author %}
     <button><a href="upgrade/">Стать автором?</a></button>
@@ -24,7 +24,7 @@ Post
     </tr>
     {% for post in posts %}
     <tr>
-        <td>{{ post.title|censor }}</td>
+        <td><a href="{{ post.get_absolute_url }}">{{ post.title|censor }}</a></td>
         <td>{{ post.time_create|date:'d.M.Y' }}</td>
         <td>{{ post.text|truncatewords:20|censor }}</td>
     </tr>

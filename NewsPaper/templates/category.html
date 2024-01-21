@@ -1,0 +1,40 @@
+<!--  наследуемся от шаблона default.html, который мы создавали для flatpages -->
+{% extends 'flatpages/default.html' %}
+{% load custom_filter %}
+{% block title %}
+category
+{% endblock title %}
+
+{% block content %}
+
+<h1>Название категории: {{ category.name }}</h1>
+<hr>
+{% if is_not_subscribe %}
+<button><a href="subscribe/">Подписаться</a></button>
+{% else %}
+<p>Вы уже подписаны на данную категорию</p>
+{% endif %}
+<hr>
+{% if category.get_post %}
+
+<table border="2" align="center">
+    <tr>
+        <th>Название статьи</th>
+        <th>Дата публикации</th>
+        <th colspan="4">Контент</th>
+    </tr>
+    {% for post in category.get_post %}
+    <tr>
+        <td><a href="{{ post.get_absolute_url }}">{{ post.title|truncatewords:8|censor }}</a></td>
+        <td>{{ post.time_create|date:'d/M/Y' }}</td>
+        <td>{{ post.text|truncatewords:10|censor }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% else %}
+<h2>В этой категории нет статей</h2>
+{% endif %}
+<br>
+<button><a href="{% url 'news:category_list' %}">Вернуться назад</a></button>
+{% endblock content %}

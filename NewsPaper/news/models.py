@@ -19,6 +19,21 @@ class Author(models.Model):
 
 class Category(models.Model):
     name = models.CharField(max_length=255, unique=True)
+    subscribers = models.ManyToManyField(User, through='CategorySubscribers')
+
+    def get_absolute_url(self):
+        return reverse(
+            'news:category_detail',
+            args=[self.id]
+        )
+    
+    def get_post(self):
+        return self.post_set.all()
+    
+    
+class CategorySubscribers(models.Model):
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
 
 
 class Post(models.Model):
@@ -44,7 +59,27 @@ class Post(models.Model):
         return self.text[:124] + '...'
     
     def get_absolute_url(self):
-        return reverse('post_detail', args=[str(self.id)])
+        return reverse(
+            'news:post_detail', 
+            args=[self.id]
+            )
+    
+    def get_category(self):
+        categories = self.category.all()
+        if len(categories) == 1:
+            return f"{categories[0].name}"
+        else:
+            list_category = []
+            for category in categories:
+                list_category.append(category.name)
+            return f"{', '.join(list_category)}"
+        
+    def get_category_url(self):
+        category = self.category.all()[0]
+        return reverse(
+            'news:category_detail',
+            args=[category.id]
+        )
 
 
 class PostCategory(models.Model):

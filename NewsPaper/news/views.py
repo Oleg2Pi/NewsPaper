@@ -1,19 +1,21 @@
 from typing import Any
 from django.db.models.query import QuerySet
 from django.forms.models import BaseModelForm
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.views.generic import (
     ListView, DetailView, CreateView, UpdateView, DeleteView,
 )
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from .models import Post
+from .models import Post, Category
 from .filters import PostsFilter
 from .forms import PostForm
 
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render, reverse
 from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required
+from django.template.loader import render_to_string
+from django.core.mail import EmailMultiAlternatives
 
 
 class PostsList(LoginRequiredMixin, ListView):
@@ -51,7 +53,7 @@ class PostDetail(DetailView):
     model = Post
     template_name = 'post.html'
     context_object_name = 'post'
-    pk_url_kwarg = 'id'
+    pk_url_kwarg = 'pk'
 
 
 class NewsCreate(PermissionRequiredMixin, CreateView):
@@ -67,6 +69,27 @@ class NewsCreate(PermissionRequiredMixin, CreateView):
             post.position = 'AR'
         post.save()
         return super().form_valid(form)
+    
+    # def post(self, request, *args, **kwargs):
+    #     post_category_pk = request.POST['category']
+    #     text = request.POST.get('text')
+    #     title = request.POST.get('title')
+    #     post_category = Category.objects.get(pk=post_category_pk)
+    #     subscribers = post_category.subscribers.all()
+
+    #     for subscriber in subscribers:
+    #         html_cont = render_to_string(
+    #             'main.html', {'user': subscriber, 'text': text[:50], 'post': post, 'title': title}
+    #         )
+    #         msg = EmailMultiAlternatives(
+    #             subject=title,
+    #             body=f'{text[:50]}',
+    #             from_email="p0likarpov.oleg@yandex.ru",
+    #             to=[]
+    #         )
+    #         msg.attach_alternative(html_cont, "text/html")
+    #         msg.send()
+    #     return redirect('/news/')
 
 
 class NewsUpdate(PermissionRequiredMixin, LoginRequiredMixin, UpdateView):
@@ -83,6 +106,24 @@ class NewsDelete(PermissionRequiredMixin, DeleteView):
     success_url = reverse_lazy('posts_list')
 
 
+class CategoryList(ListView):
+    model = Category
+    template_name = 'category_list.html'
+    context_object_name = 'category'
+
+
+class CategoryDetail(DetailView):
+    model = Category
+    template_name = 'category.html'
+    context_object_name = 'category'
+    pk_url_kwarg = 'pk'
+
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        category = Category.objects.get(pk=self.kwargs['pk'])
+        context['is_not_subscribe'] = not self.request.user.category_set.filter(id=category.pk).exists()
+        return context
+    
 @login_required
 def upgrade_me(request):
     user = request.user
@@ -90,3 +131,11 @@ def upgrade_me(request):
     if not request.user.groups.filter(name='authors').exists():
         authors_group.user_set.add(user)
     return redirect('/news')
+
+@login_required
+def subscribe(request, pk):
+    user = request.user
+    category = Category.objects.get(id=pk)
+    category.subscribers.add(user)
+    message = "Вы успешно подписались на рассылку новостей категории"
+    return render(request, 'subscribe.html', {'category': category, 'message': message})

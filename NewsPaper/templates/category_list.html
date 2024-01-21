@@ -1,0 +1,27 @@
+{% extends 'flatpages/default.html' %}
+{% load custom_filter %}
+{% block title %}
+Category
+{% endblock title %}
+
+{% block content %}
+<h1>Всего категорий: {{ category|length }}</h1>
+<table border="2" align="center">
+    <tr>
+        <td>Название категории</td>
+        <td>Количество постов в данной категории</td>
+    </tr>
+
+{% for categ in category %}
+<tr align="center">
+    <td>
+        <a href="{{ categ.get_absolute_url }}">
+        <h3>{{ categ.name }}</h3>
+    </a>
+    </td>
+    <td><h3>{{ categ.get_post|length }}</h3></td>
+</tr>
+
+{% endfor %}
+</table>
+{% endblock %}

@@ -14,6 +14,12 @@ Post
 <h3>Дата публикации: {{ post.time_create|date:'d.M.Y' }}</h3>
 <hr>
 <h3>{{ post.text|censor }}</h3>
+<hr>
+{% if post.get_category %}
+<h5>Категория данной статьи: <a href="{{ post.get_category_url }}">{{ post.get_category }}</a></h5>
+{% else %}
+<h5>Категория не установлена</h5>
+{% endif %}
 {% else %}
 <h3>Статья не найдена!</h3>
 {% endif %}
