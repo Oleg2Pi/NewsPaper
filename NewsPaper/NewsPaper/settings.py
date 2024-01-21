@@ -51,9 +51,14 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
+
+    'django_apscheduler',
 ]
 
+SITE_URL = 'http://127.0.0.1:8000'
 SITE_ID = 1
+APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"
+APSCHEDULER_RUN_NOW_TIMEOUT = 25 #Seconds
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
