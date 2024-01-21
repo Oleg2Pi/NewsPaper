@@ -59,8 +59,7 @@ class Command(BaseCommand):
         scheduler.add_job(
             my_job,
             trigger=CronTrigger(
-                # day_of_week='sat', hour='10', minute='00'
-                second='*/10'
+                day_of_week='sat', hour='10', minute='00'
             ),  # default(second="*/10") То же, что и интервал, но задача тригера таким образом более понятна django
             id="my_job",  # уникальный айди
             max_instances=1,
