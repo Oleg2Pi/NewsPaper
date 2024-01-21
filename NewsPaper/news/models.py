@@ -16,6 +16,9 @@ class Author(models.Model):
         self.rating = rating_news * 3 + rating_user + rating_comment
         self.save()
 
+    def __str__(self) -> str:
+        return self.user.username
+
 
 class Category(models.Model):
     name = models.CharField(max_length=255, unique=True)
@@ -30,6 +33,9 @@ class Category(models.Model):
     def get_post(self):
         return self.post_set.all()
     
+    def __str__(self) -> str:
+        return self.name
+    
     
 class CategorySubscribers(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
@@ -37,14 +43,14 @@ class CategorySubscribers(models.Model):
 
 
 class Post(models.Model):
-    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE, verbose_name='Автор')
     position = models.CharField(max_length=2,
                                 choices=POSITIONS,
                                 default=news)
     time_create = models.DateTimeField(auto_now_add=True)
-    category = models.ManyToManyField(Category, through='PostCategory')
-    title = models.CharField(max_length=255)
-    text = models.TextField()
+    category = models.ManyToManyField(Category, through='PostCategory', verbose_name='Категория')
+    title = models.CharField(max_length=255, verbose_name='Заголовок')
+    text = models.TextField(verbose_name='Контент')
     rating = models.IntegerField(default=0)
 
     def like(self):
@@ -80,6 +86,9 @@ class Post(models.Model):
             'news:category_detail',
             args=[category.id]
         )
+    
+    def __str__(self) -> str:
+        return f"{self.title}: {self.text}"
 
 
 class PostCategory(models.Model):

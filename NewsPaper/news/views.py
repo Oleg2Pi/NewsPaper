@@ -1,3 +1,4 @@
+from NewsPaper import settings
 from typing import Any
 from django.db.models.query import QuerySet
 from django.forms.models import BaseModelForm
@@ -7,15 +8,15 @@ from django.views.generic import (
     ListView, DetailView, CreateView, UpdateView, DeleteView,
 )
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from .models import Post, Category
+from .models import Post, Category, Author, PostCategory
 from .filters import PostsFilter
 from .forms import PostForm
 
 from django.shortcuts import redirect, render, reverse
 from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required
+from django.core.mail import send_mail, EmailMultiAlternatives
 from django.template.loader import render_to_string
-from django.core.mail import EmailMultiAlternatives
 
 
 class PostsList(LoginRequiredMixin, ListView):
@@ -61,36 +62,39 @@ class NewsCreate(PermissionRequiredMixin, CreateView):
     form_class = PostForm
     model = Post
     template_name = 'post_edit.html'
-
-    def form_valid(self, form: BaseModelForm) -> HttpResponse:
-        post = form.save(commit=False)
-        post.rating = 0
-        if self.request.path == 'news/articles/create/':
-            post.position = 'AR'
-        post.save()
-        return super().form_valid(form)
     
-    # def post(self, request, *args, **kwargs):
-    #     post_category_pk = request.POST['category']
-    #     text = request.POST.get('text')
-    #     title = request.POST.get('title')
-    #     post_category = Category.objects.get(pk=post_category_pk)
-    #     subscribers = post_category.subscribers.all()
+    def post(self, request, *args, **kwargs):
+        form = PostForm(request.POST)
+        category_pk = request.POST['category']
+        text = request.POST.get('text')
+        title = request.POST.get('title')
+        post_category = Category.objects.get(pk=category_pk)
+        subscribers = post_category.subscribers.all()
 
-    #     for subscriber in subscribers:
-    #         html_cont = render_to_string(
-    #             'main.html', {'user': subscriber, 'text': text[:50], 'post': post, 'title': title}
-    #         )
-    #         msg = EmailMultiAlternatives(
-    #             subject=title,
-    #             body=f'{text[:50]}',
-    #             from_email="p0likarpov.oleg@yandex.ru",
-    #             to=[]
-    #         )
-    #         msg.attach_alternative(html_cont, "text/html")
-    #         msg.send()
-    #     return redirect('/news/')
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.rating = 0
+            if self.request.path == 'news/articles/create/':
+                post.position = 'AR'
+            post.save()
+        
+        postcategory = PostCategory.objects.create(post=post, category=post_category)
+        postcategory.save()
 
+        for subscriber in subscribers:
+            html_content = render_to_string(
+                'mail.html', {'user': subscriber, 'text': text[:50], 'title': title, 'post': post}
+            )
+            msg = EmailMultiAlternatives(
+                subject=title,
+                body=f"{text[:50]}",
+                from_email=settings.DEFAULT_EMAIL_USER,
+                to=[subscriber.email],
+            )
+            msg.attach_alternative(html_content, 'text/html')
+            msg.send()
+            return redirect('/news/')
+    
 
 class NewsUpdate(PermissionRequiredMixin, LoginRequiredMixin, UpdateView):
     permission_required = ('news.change_post')
@@ -130,6 +134,8 @@ def upgrade_me(request):
     authors_group = Group.objects.get(name='authors')
     if not request.user.groups.filter(name='authors').exists():
         authors_group.user_set.add(user)
+        author = Author.objects.create(user=user)
+        author.save()
     return redirect('/news')
 
 @login_required
