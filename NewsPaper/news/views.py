@@ -19,6 +19,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail, EmailMultiAlternatives
 from django.template.loader import render_to_string
 
+from .tasks import send_message
 
 class PostsList(LoginRequiredMixin, ListView):
     model = Post
@@ -86,14 +87,15 @@ class NewsCreate(PermissionRequiredMixin, CreateView):
             html_content = render_to_string(
                 'mail.html', {'user': subscriber, 'text': text[:50], 'title': title, 'post': post}
             )
-            msg = EmailMultiAlternatives(
-                subject=title,
-                body=f"{text[:50]}",
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                to=[subscriber.email],
-            )
-            msg.attach_alternative(html_content, 'text/html')
-            msg.send()
+            # msg = EmailMultiAlternatives(
+            #     subject=title,
+            #     body=f"{text[:50]}",
+            #     from_email=settings.DEFAULT_FROM_EMAIL,
+            #     to=[subscriber.email],
+            # )
+            # msg.attach_alternative(html_content, 'text/html')
+            # msg.send()
+            send_message(title, text, settings, subscriber, html_content)
         return redirect('/news/')
     
 
@@ -102,10 +104,6 @@ class NewsUpdate(PermissionRequiredMixin, LoginRequiredMixin, UpdateView):
     form_class = PostForm
     model = Post
     template_name = 'Post_edit.html'
-
-    def get_object(self, queryset: QuerySet[Any] | None = ...) -> Model:
-        id = self.kwargs.get('pk')
-        return Post.objects.get(pk=id)
 
 
 class NewsDelete(PermissionRequiredMixin, DeleteView):
