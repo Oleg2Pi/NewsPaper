@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from news.recourse import POSITIONS, news
 from django.db.models import Sum
 from django.urls import reverse
+from django.core.cache import cache
 
 
 class Author(models.Model):
@@ -89,6 +90,10 @@ class Post(models.Model):
     
     def __str__(self) -> str:
         return f"{self.title}: {self.text}"
+    
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        cache.delete(f'post-{self.pk}')
 
 
 class PostCategory(models.Model):

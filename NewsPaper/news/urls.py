@@ -9,7 +9,7 @@ app_name = 'news'
 
 urlpatterns = [
     path('', cache_page(60)(PostsList.as_view()), name='posts_list'),
-    path('<int:pk>', cache_page(300)(PostDetail.as_view()), name='post_detail'),
+    path('<int:pk>', PostDetail.as_view(), name='post_detail'),
     path('search/', PostsSearch.as_view(), name='post_search'),
     path('create/', NewsCreate.as_view(), name='news_create'),
     path('articles/create/', NewsCreate.as_view(), name='article_create'),

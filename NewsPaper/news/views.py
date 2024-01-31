@@ -13,6 +13,8 @@ from .models import Post, Category, Author, PostCategory
 from .filters import PostsFilter
 from .forms import PostForm
 
+from django.core.cache import cache
+
 from django.shortcuts import redirect, render, reverse
 from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required
@@ -57,6 +59,15 @@ class PostDetail(DetailView):
     template_name = 'post.html'
     context_object_name = 'post'
     pk_url_kwarg = 'pk'
+
+    def get_object(self, *args, **kwargs):
+        obj = cache.get(f'post-{self.kwargs["pk"]}', None)
+
+        if not obj:
+            obj = super().get_object(queryset=self.queryset)
+            cache.set(f'post-{self.kwargs["pk"]}', obj)
+
+        return obj
 
 
 class NewsCreate(PermissionRequiredMixin, CreateView):
