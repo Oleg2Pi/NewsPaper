@@ -1,9 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import User
-from news.recourse import POSITIONS, news
 from django.db.models import Sum
 from django.urls import reverse
 from django.core.cache import cache
+
+from .recourse import POSITIONS, news
 
 
 class Author(models.Model):
