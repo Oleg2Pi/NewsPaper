@@ -2,7 +2,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.core.mail import send_mail
 from .models import Post
-from NewsPaper import settings
+from config import settings
 
 @receiver(post_save, sender=Post)
 def notify_managers_post(sender, instance, created, **kwargs):

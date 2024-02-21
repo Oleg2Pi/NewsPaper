@@ -1,5 +1,5 @@
 from django.db.models.base import Model as Model
-from NewsPaper import settings
+from config import settings
 from typing import Any
 from django.db.models.query import QuerySet
 from django.forms.models import BaseModelForm
