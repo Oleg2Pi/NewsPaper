@@ -1,10 +1,12 @@
 from django.urls import path
+from django.views.decorators.cache import cache_page
+
 from .views import (
     PostsList, PostDetail, PostsSearch, 
     NewsCreate, NewsUpdate, NewsDelete, 
     CategoryList, CategoryDetail, upgrade_me, subscribe
 )
-from django.views.decorators.cache import cache_page
+
 
 app_name = 'news'
 

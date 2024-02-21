@@ -1,10 +1,11 @@
-from config.celery import app
 import time
 import datetime
 
 from django.core.mail import EmailMultiAlternatives, send_mail
+
 from .models import Post
 from config import settings
+from config.celery import app
 
 
 @app.task

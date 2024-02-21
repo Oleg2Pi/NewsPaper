@@ -1,5 +1,5 @@
-from pathlib import Path
 import os
+from pathlib import Path
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -148,8 +148,8 @@ STATICFILES_DIRS = [
 ]
 
 LOGIN_URL = '/accounts/login/'
-
 LOGIN_REDIRECT_URL = '/news'
+
 LOGOUT_REDIRECT_URL = '/news'
 
 ACCOUNT_EMAIL_REQUIRED = True
@@ -159,6 +159,7 @@ ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
 
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
+
 EMAIL_HOST = os.getenv('EMAIL_HOST')
 EMAIL_PORT = os.getenv('EMAIL_PORT')
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')

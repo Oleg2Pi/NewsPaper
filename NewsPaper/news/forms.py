@@ -1,8 +1,9 @@
 from django import forms
-from .models import Post
+from django.contrib.auth.models import Group
 
 from allauth.account.forms import SignupForm
-from django.contrib.auth.models import Group
+
+from .models import Post
 
 
 class PostForm(forms.ModelForm):
@@ -17,7 +18,6 @@ class PostForm(forms.ModelForm):
 
 
 class BasicSignupForm(SignupForm):
-
 
     def save(self, request):
         user = super(BasicSignupForm, self).save(request)

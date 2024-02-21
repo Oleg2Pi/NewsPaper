@@ -1,27 +1,27 @@
-from django.db.models.base import Model as Model
-from config import settings
 from typing import Any
-from django.db.models.query import QuerySet
-from django.forms.models import BaseModelForm
+
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse_lazy
+from django.shortcuts import redirect, render, reverse
+from django.db.models.base import Model as Model
+from django.db.models.query import QuerySet
+from django.forms.models import BaseModelForm
 from django.views.generic import (
     ListView, DetailView, CreateView, UpdateView, DeleteView,
 )
+from django.core.cache import cache
+from django.core.mail import send_mail, EmailMultiAlternatives
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.auth.models import Group
+from django.contrib.auth.decorators import login_required
+from django.template.loader import render_to_string
+
 from .models import Post, Category, Author, PostCategory
 from .filters import PostsFilter
 from .forms import PostForm
-
-from django.core.cache import cache
-
-from django.shortcuts import redirect, render, reverse
-from django.contrib.auth.models import Group
-from django.contrib.auth.decorators import login_required
-from django.core.mail import send_mail, EmailMultiAlternatives
-from django.template.loader import render_to_string
-
+from config import settings
 from .tasks import send_message
+
 
 class PostsList(LoginRequiredMixin, ListView):
     model = Post
