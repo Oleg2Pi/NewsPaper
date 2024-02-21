@@ -8,11 +8,13 @@ Post
 
 <!-- В контенте на странице мы выводим все товары -->
 {% block content %}
-<h1>Опубликованные новости/статьи</h1>
-<h6>Количество постов на странице: {{ posts|length }}</h6>
+<div>
+    <h1>Новости</h1>
+    <h6>Количество постов на странице: {{ posts|length }}</h6>
+</div>
 
 {% if is_not_author %}
-    <button><a href="upgrade/">Стать автором?</a></button>
+<button><a href="upgrade/">Стать автором?</a></button>
 {% endif %}
 <hr>
 {% if posts %}
