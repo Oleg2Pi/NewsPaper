@@ -4,6 +4,9 @@ from django.urls import reverse
 from django.core.cache import cache
 from django.contrib.auth.models import User
 
+from django.utils.translation import gettext as _
+from django.utils.translation import pgettext_lazy # импортируем «ленивый» геттекст с подсказкой
+
 from .recourse import POSITIONS, news
 
 
@@ -23,7 +26,7 @@ class Author(models.Model):
 
 
 class Category(models.Model):
-    name = models.CharField(max_length=255, unique=True)
+    name = models.CharField(max_length=255, unique=True, help_text=_('category name'))  # добавим переводящийся текст 
     subscribers = models.ManyToManyField(User, through='CategorySubscribers')
 
     def get_absolute_url(self):
@@ -50,7 +53,12 @@ class Post(models.Model):
                                 choices=POSITIONS,
                                 default=news)
     time_create = models.DateTimeField(auto_now_add=True)
-    category = models.ManyToManyField(Category, through='PostCategory', verbose_name='Категория')
+    category = models.ManyToManyField(
+        Category, 
+        through='PostCategory', 
+        related_name='Категория', 
+        verbose_name=pgettext_lazy('help text for Post model', 'This is the help text')
+    )
     title = models.CharField(max_length=255, verbose_name='Заголовок')
     text = models.TextField(verbose_name='Контент')
     rating = models.IntegerField(default=0)

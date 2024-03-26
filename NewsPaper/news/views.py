@@ -15,12 +15,17 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required
 from django.template.loader import render_to_string
+from django.utils.translation import gettext as _
+
+from rest_framework import viewsets
+from rest_framework import permissions
 
 from .models import Post, Category, Author, PostCategory
 from .filters import PostsFilter
 from .forms import PostForm
 from config import settings
 from .tasks import send_message
+from .serializers import PostsSerializers
 
 
 class PostsList(LoginRequiredMixin, ListView):
@@ -32,9 +37,19 @@ class PostsList(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        context['is_not_author'] = not self.request.user.groups.filter(name = 'authors').exists()
+        context['is_not_author'] = not self.request.user.groups.filter(
+            name='authors').exists()
         return context
 
+
+class NewsViewset(viewsets.ModelViewSet):
+    queryset = Post.objects.filter(position='NE')
+    serializer_class = PostsSerializers
+
+
+# class ArticlesListViewset(viewsets.ModelViewSet):
+#     queryset = Post.objects.filter(position='AR')
+#     serializer_class = ArticlesSerializers
 
 class PostsSearch(ListView):
     model = Post
@@ -75,7 +90,7 @@ class NewsCreate(PermissionRequiredMixin, CreateView):
     form_class = PostForm
     model = Post
     template_name = 'post_edit.html'
-    
+
     def post(self, request, *args, **kwargs):
         form = PostForm(request.POST)
         category_pk = request.POST['category']
@@ -90,13 +105,15 @@ class NewsCreate(PermissionRequiredMixin, CreateView):
             if self.request.path == 'news/articles/create/':
                 post.position = 'AR'
             post.save()
-        
-        postcategory = PostCategory.objects.create(post=post, category=post_category)
+
+        postcategory = PostCategory.objects.create(
+            post=post, category=post_category)
         postcategory.save()
 
         for subscriber in subscribers:
             html_content = render_to_string(
-                'mail.html', {'user': subscriber, 'text': text[:50], 'title': title, 'post': post}
+                'mail.html', {'user': subscriber,
+                              'text': text[:50], 'title': title, 'post': post}
             )
             # msg = EmailMultiAlternatives(
             #     subject=title,
@@ -108,7 +125,7 @@ class NewsCreate(PermissionRequiredMixin, CreateView):
             # msg.send()
             send_message(title, text, settings, subscriber, html_content)
         return redirect('/news/')
-    
+
 
 class NewsUpdate(PermissionRequiredMixin, LoginRequiredMixin, UpdateView):
     permission_required = ('news.change_post')
@@ -139,9 +156,11 @@ class CategoryDetail(DetailView):
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
         category = Category.objects.get(pk=self.kwargs['pk'])
-        context['is_not_subscribe'] = not self.request.user.category_set.filter(id=category.pk).exists()
+        context['is_not_subscribe'] = not self.request.user.category_set.filter(
+            id=category.pk).exists()
         return context
-    
+
+
 @login_required
 def upgrade_me(request):
     user = request.user
@@ -152,10 +171,11 @@ def upgrade_me(request):
         author.save()
     return redirect('/news')
 
+
 @login_required
 def subscribe(request, pk):
     user = request.user
     category = Category.objects.get(id=pk)
     category.subscribers.add(user)
-    message = "Вы успешно подписались на рассылку новостей категории"
+    message = _("Вы успешно подписались на рассылку новостей категории")
     return render(request, 'subscribe.html', {'category': category, 'message': message})

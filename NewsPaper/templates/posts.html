@@ -1,6 +1,7 @@
 <!--  наследуемся от шаблона default.html, который мы создавали для flatpages -->
 {% extends 'flatpages/default.html' %}
 {% load custom_filter %}
+{% load i18n %}
 <!-- Название у нас будет products -->
 {% block title %}
 Post
@@ -9,7 +10,8 @@ Post
 <!-- В контенте на странице мы выводим все товары -->
 {% block content %}
 <div>
-    <h1>Новости</h1>
+    {{ string }}
+    <h1>{% trans "News" %}</h1>
     <h6>Количество постов на странице: {{ posts|length }}</h6>
 </div>
 
